@@ -1,52 +1,36 @@
 pipeline{
-	agent any
-    tools {
+    agent any
+    tools{
         maven 'maventool'
     }
-      stages{
-           stage('Checkout'){
-	    
-               steps{
-		 echo 'cloning..'
-                 git 'https://github.com/mmdaya/QA.git'
-              }
-          }
-          stage('Compile'){
-             
-              steps{
-                  echo 'compiling..'
-                  sh 'mvn compile'
-	      }
-          }
-          stage('CodeReview'){
-		  
-              steps{
-		    
-		  echo 'codeReview'
-                  sh 'mvn pmd:pmd'
-              }
-          }
-           stage('UnitTest'){
-		  
-              steps{
-	         
-                  sh 'mvn test'
-              }
-               post {
-               success {
-                   junit 'target/surefire-reports/*.xml'
-               }
-           }	
-          }
-          
-          stage('Package'){
-		  
-              steps{
-		  
-                  sh 'mvn package'
-              }
-          }
-	     
-          
-      }
+    
+    stages {
+        stage("parallel stage"){
+            parallel{
+            
+                 stage("code compile"){
+                    steps{
+                        sh "mvn compile"
+                        echo "success"
+                    }
+                }
+                 stage("testing of my code"){
+                    steps{
+                        sh "mvn test"
+                    }   
+                }
+            }
+        }
+        stage("code quality check"){
+            steps{
+                sh "mvn pmd:pmd"
+                recordIssues(tools: [pmdParser()])
+            }
+        }
+        stage("package to be converted"){
+            steps{
+                sh "mvn package"
+            }
+        }
+    }
 }
