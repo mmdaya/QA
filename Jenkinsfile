@@ -1,11 +1,14 @@
 pipeline{
 	agent any
+    tools {
+        maven 'maventool'
+    }
       stages{
            stage('Checkout'){
 	    
                steps{
 		 echo 'cloning..'
-                 git 'https://github.com/akshu20791/DevOpsClassCodes.git'
+                 git 'https://github.com/mmdaya/QA.git'
               }
           }
           stage('Compile'){
